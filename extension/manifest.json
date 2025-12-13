@@ -5,5 +5,11 @@
   "description": "Apply via email using AI-generated email body and cover letter.",
   "action": {
     "default_title": "LinkedIn AI Apply"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/*"],
+      "js": ["content/content.js"]
+    }
+  ]
 }
