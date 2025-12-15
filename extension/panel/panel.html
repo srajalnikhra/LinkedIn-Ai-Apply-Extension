@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>LinkedIn AI Apply</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6f8;
+    }
+    .panel {
+      width: 360px;
+      height: 100vh;
+      background: #ffffff;
+      border-left: 1px solid #ddd;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+    .emails {
+      background: #eef3f8;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .close {
+      float: right;
+      cursor: pointer;
+      font-size: 14px;
+      color: #0a66c2;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <span class="close" id="closePanel">Close</span>
+    <h2>Apply via Email</h2>
+    <div id="emails" class="emails">Loading emails...</div>
+    <div id="postText">Loading post...</div>
+  </div>
+
+  <script src="panel.js"></script>
+</body>
+</html>

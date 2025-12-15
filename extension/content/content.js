@@ -35,8 +35,11 @@ function injectApplyButton(post, emails) {
   btn.style.textAlign = "center";
 
   btn.addEventListener("click", () => {
-    console.log("Apply clicked for this post");
-    console.log("Emails:", emails);
+    chrome.runtime.sendMessage({
+      type: "OPEN_PANEL",
+      emails,
+      postText: post.innerText
+    });
   });
 
   // Insert at TOP of the post
