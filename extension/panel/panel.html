@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <title>LinkedIn AI Apply</title>
+
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #f3f6f8;
     }
+
     .panel {
       width: 360px;
       height: 100vh;
@@ -17,31 +19,70 @@
       padding: 16px;
       box-sizing: border-box;
     }
+
     h2 {
       margin-top: 0;
       font-size: 18px;
     }
-    .emails {
-      background: #eef3f8;
+
+    textarea, input {
+      width: 100%;
+      box-sizing: border-box;
       padding: 8px;
       border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 13px;
       margin-bottom: 12px;
-      font-size: 14px;
     }
-    .close {
-      float: right;
+
+    button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: none;
       cursor: pointer;
       font-size: 14px;
+    }
+
+    #generate, #generateAI {
+      background: #0a66c2;
+      color: white;
+    }
+
+    #sendMail {
+      background: #057642;
+      color: white;
+    }
+
+    #closePanel {
+      background: none;
       color: #0a66c2;
+      text-align: right;
+      padding: 0;
     }
   </style>
 </head>
+
 <body>
   <div class="panel">
-    <span class="close" id="closePanel">Close</span>
+    <button id="closePanel">Close</button>
+
     <h2>Apply via Email</h2>
-    <div id="emails" class="emails">Loading emails...</div>
-    <div id="postText">Loading post...</div>
+
+    <!-- STEP 4 REQUIRED -->
+    <input id="email" placeholder="Recipient email" />
+
+    <button id="generate">Generate AI Email</button>
+
+    <textarea id="emailBody" rows="10" placeholder="Generated email will appear here..."></textarea>
+
+    <!-- STEP 9.3 EXISTING (kept for later steps) -->
+    <textarea id="emails" readonly style="display:none;"></textarea>
+    <div id="postText" style="display:none;"></div>
+    <button id="generateAI" style="display:none;"></button>
+    <textarea id="aiOutput" style="display:none;"></textarea>
+    <button id="sendMail" style="display:none;"></button>
   </div>
 
   <script src="panel.js"></script>

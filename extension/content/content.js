@@ -1,73 +1,62 @@
-console.log("===== STEP 6 RESET LOADED =====");
+// content/content.js
 
-const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-
-function extractEmailsFromPost(post) {
-  const emails = new Set();
-
-  const text = post.innerText || "";
-  (text.match(emailRegex) || []).forEach(e => emails.add(e));
-
-  post.querySelectorAll('a[href^="mailto:"]').forEach(link => {
-    const email = link.href.replace("mailto:", "").split("?")[0];
-    if (email) emails.add(email);
-  });
-
-  return Array.from(emails);
-}
-
-function injectApplyButton(post, emails) {
-  // prevent duplicates
+function injectApplyButton(post, email, postText) {
   if (post.querySelector(".ai-apply-btn")) return;
 
-  const btn = document.createElement("div");
+  const btn = document.createElement("button");
+  btn.innerText = "Apply (AI) · 1 email(s)";
   btn.className = "ai-apply-btn";
-  btn.innerText = `Apply (AI) • ${emails.length} email(s)`;
+  btn.style.cssText = `
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: #0a66c2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+  `;
 
-  // VERY visible styling
-  btn.style.padding = "10px";
-  btn.style.margin = "8px 0";
-  btn.style.background = "#0a66c2";
-  btn.style.color = "#ffffff";
-  btn.style.fontWeight = "600";
-  btn.style.borderRadius = "6px";
-  btn.style.cursor = "pointer";
-  btn.style.textAlign = "center";
+  btn.onclick = async () => {
+    // 1️⃣ Get active tab safely
+    chrome.runtime.sendMessage({ type: "GET_TAB" }, (tabs) => {
+      if (!tabs || !tabs[0]) return;
 
-  btn.addEventListener("click", () => {
-    chrome.runtime.sendMessage({
-      type: "OPEN_PANEL",
-      emails,
-      postText: post.innerText
+      const tabId = tabs[0].id;
+
+      // 2️⃣ Store data for panel
+      chrome.storage.local.set({
+        applyData: {
+          email,
+          postText,
+        },
+      });
+
+      // 3️⃣ Force open panel every click
+      chrome.runtime.sendMessage({
+        type: "OPEN_PANEL",
+        tabId,
+      });
     });
-  });
+  };
 
-  // Insert at TOP of the post
-  post.prepend(btn);
+  post.appendChild(btn);
 }
 
-function processPosts() {
-  const posts = document.querySelectorAll("div[data-urn]");
+function scanPosts() {
+  const posts = document.querySelectorAll("div.feed-shared-update-v2");
 
-  console.log("Posts found:", posts.length);
+  posts.forEach((post) => {
+    const text = post.innerText || "";
+    const emailMatch = text.match(
+      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+    );
 
-  posts.forEach(post => {
-    const emails = extractEmailsFromPost(post);
-    if (emails.length > 0) {
-      injectApplyButton(post, emails);
-    }
+    if (!emailMatch) return;
+
+    injectApplyButton(post, emailMatch[0], text);
   });
 }
 
-// Initial run
-processPosts();
-
-// Observe LinkedIn dynamic loading
-const observer = new MutationObserver(() => {
-  processPosts();
-});
-
-observer.observe(document.body, {
-  childList: true,
-  subtree: true
-});
+setInterval(scanPosts, 3000);

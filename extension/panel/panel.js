@@ -1,15 +1,45 @@
-chrome.storage.local.get("applyData", (result) => {
-  const data = result.applyData;
+// panel/panel.js
 
-  if (!data) return;
+const emailInput = document.getElementById("email");
+const textArea = document.getElementById("emailBody");
+const generateBtn = document.getElementById("generate");
 
-  document.getElementById("emails").innerText =
-    data.emails.join(", ");
+// 🔹 Function to load data into panel
+function loadApplyData() {
+  chrome.storage.local.get("applyData", (res) => {
+    if (!res.applyData) return;
 
-  document.getElementById("postText").innerText =
-    data.postText.slice(0, 500) + "...";
+    emailInput.value = res.applyData.email;
+    textArea.value = "Click 'Generate AI Email' to create content...";
+  });
+}
+
+// 🔹 Initial load
+loadApplyData();
+
+// 🔹 🔥 THIS FIXES THE ISSUE 🔥
+// Listen for Apply button clicks (storage updates)
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.applyData) {
+    loadApplyData();
+  }
 });
 
-document.getElementById("closePanel").onclick = () => {
-  window.close();
+// 🔹 Generate AI email
+generateBtn.onclick = () => {
+  chrome.storage.local.get("applyData", (res) => {
+    if (!res.applyData) return;
+
+    chrome.runtime.sendMessage(
+      {
+        type: "GENERATE_AI_EMAIL",
+        payload: res.applyData,
+      },
+      (response) => {
+        if (response?.success) {
+          textArea.value = response.emailBody;
+        }
+      }
+    );
+  });
 };
