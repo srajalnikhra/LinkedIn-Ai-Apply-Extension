@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LinkedIn AI Apply Extension",
   "version": "0.1.0",
-  "description": "Apply via email using AI-generated email body and cover letter.",
+  "description": "Apply via email using AI-generated email body.",
   "permissions": ["storage", "tabs", "sidePanel"],
   "host_permissions": ["https://www.linkedin.com/*"],
   "background": {

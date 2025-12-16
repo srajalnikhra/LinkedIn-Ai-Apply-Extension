@@ -2,88 +2,42 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>LinkedIn AI Apply</title>
-
+  <title>Apply via Email</title>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f3f6f8;
+      padding: 12px;
     }
-
-    .panel {
-      width: 360px;
-      height: 100vh;
-      background: #ffffff;
-      border-left: 1px solid #ddd;
-      padding: 16px;
-      box-sizing: border-box;
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 18px;
-    }
-
-    textarea, input {
+    input, textarea, button {
       width: 100%;
-      box-sizing: border-box;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 13px;
-      margin-bottom: 12px;
-    }
-
-    button {
-      width: 100%;
-      padding: 8px;
       margin-bottom: 10px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
+      padding: 8px;
+      font-size: 13px;
+      box-sizing: border-box;
     }
-
-    #generate, #generateAI {
-      background: #0a66c2;
-      color: white;
+    textarea {
+      resize: none;
     }
-
-    #sendMail {
-      background: #057642;
-      color: white;
+    #jdText {
+      height: 160px;
+      background: #f5f5f5;
     }
-
-    #closePanel {
-      background: none;
-      color: #0a66c2;
-      text-align: right;
-      padding: 0;
+    #emailBody {
+      min-height: 140px;
     }
   </style>
 </head>
 
 <body>
-  <div class="panel">
-    <button id="closePanel">Close</button>
+  <h3>Apply via Email</h3>
 
-    <h2>Apply via Email</h2>
+  <input id="email" placeholder="Recruiter email" />
 
-    <!-- STEP 4 REQUIRED -->
-    <input id="email" placeholder="Recipient email" />
+  <button id="generate">Generate AI Email</button>
 
-    <button id="generate">Generate AI Email</button>
+  <textarea id="emailBody" placeholder="AI-generated email will appear here..."></textarea>
 
-    <textarea id="emailBody" rows="10" placeholder="Generated email will appear here..."></textarea>
-
-    <!-- STEP 9.3 EXISTING (kept for later steps) -->
-    <textarea id="emails" readonly style="display:none;"></textarea>
-    <div id="postText" style="display:none;"></div>
-    <button id="generateAI" style="display:none;"></button>
-    <textarea id="aiOutput" style="display:none;"></textarea>
-    <button id="sendMail" style="display:none;"></button>
-  </div>
+  <button id="sendBtn">Send via Gmail</button>
 
   <script src="panel.js"></script>
 </body>

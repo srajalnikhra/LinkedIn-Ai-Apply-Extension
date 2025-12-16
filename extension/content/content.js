@@ -1,11 +1,43 @@
-// content/content.js
+// ===== LinkedIn AI Apply - content.js =====
 
-function injectApplyButton(post, email, postText) {
+// Clean JD text
+function cleanJD(text) {
+  if (!text) return "";
+
+  return text
+    .replace(/#\w+/g, "")
+    .replace(/Apply Here:.*/gi, "")
+    .replace(/View job/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+// Extract JD
+function extractJDFromPost(post) {
+  const textContainer =
+    post.querySelector("span[dir='ltr']") ||
+    post.querySelector("div.update-components-text");
+
+  if (!textContainer) return "";
+  return cleanJD(textContainer.innerText);
+}
+
+// Inject Apply button
+function injectApplyButton(post) {
   if (post.querySelector(".ai-apply-btn")) return;
 
+  const emailMatch = post.innerText.match(
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+  );
+
+  if (!emailMatch) return;
+
+  const email = emailMatch[0];
+  const jdText = extractJDFromPost(post);
+
   const btn = document.createElement("button");
-  btn.innerText = "Apply (AI) · 1 email(s)";
   btn.className = "ai-apply-btn";
+  btn.innerText = "Apply (AI) · 1 email(s)";
   btn.style.cssText = `
     width: 100%;
     margin-top: 8px;
@@ -14,29 +46,23 @@ function injectApplyButton(post, email, postText) {
     color: white;
     border: none;
     border-radius: 6px;
-    font-weight: 600;
+    font-size: 14px;
     cursor: pointer;
   `;
 
-  btn.onclick = async () => {
-    // 1️⃣ Get active tab safely
+  btn.onclick = () => {
     chrome.runtime.sendMessage({ type: "GET_TAB" }, (tabs) => {
-      if (!tabs || !tabs[0]) return;
+      const tabId = tabs?.[0]?.id;
+      if (!tabId) return;
 
-      const tabId = tabs[0].id;
+      chrome.runtime.sendMessage({ type: "OPEN_PANEL", tabId });
 
-      // 2️⃣ Store data for panel
-      chrome.storage.local.set({
-        applyData: {
-          email,
-          postText,
-        },
-      });
-
-      // 3️⃣ Force open panel every click
       chrome.runtime.sendMessage({
-        type: "OPEN_PANEL",
-        tabId,
+        type: "UPDATE_PANEL_DATA",
+        payload: {
+          email,
+          jdText
+        }
       });
     });
   };
@@ -44,19 +70,16 @@ function injectApplyButton(post, email, postText) {
   post.appendChild(btn);
 }
 
+// Scan posts
 function scanPosts() {
-  const posts = document.querySelectorAll("div.feed-shared-update-v2");
-
-  posts.forEach((post) => {
-    const text = post.innerText || "";
-    const emailMatch = text.match(
-      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
-    );
-
-    if (!emailMatch) return;
-
-    injectApplyButton(post, emailMatch[0], text);
-  });
+  document
+    .querySelectorAll("div.feed-shared-update-v2")
+    .forEach(injectApplyButton);
 }
 
-setInterval(scanPosts, 3000);
+scanPosts();
+
+new MutationObserver(scanPosts).observe(document.body, {
+  childList: true,
+  subtree: true
+});
