@@ -1,39 +1,14 @@
-// ===== LinkedIn AI Apply - content.js =====
+// Scan LinkedIn posts and inject Apply button
 
-// Clean JD text
-function cleanJD(text) {
-  if (!text) return "";
-
-  return text
-    .replace(/#\w+/g, "")
-    .replace(/Apply Here:.*/gi, "")
-    .replace(/View job/gi, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-// Extract JD
-function extractJDFromPost(post) {
-  const textContainer =
-    post.querySelector("span[dir='ltr']") ||
-    post.querySelector("div.update-components-text");
-
-  if (!textContainer) return "";
-  return cleanJD(textContainer.innerText);
-}
-
-// Inject Apply button
-function injectApplyButton(post) {
+function injectButton(post) {
   if (post.querySelector(".ai-apply-btn")) return;
 
   const emailMatch = post.innerText.match(
     /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
   );
-
   if (!emailMatch) return;
 
   const email = emailMatch[0];
-  const jdText = extractJDFromPost(post);
 
   const btn = document.createElement("button");
   btn.className = "ai-apply-btn";
@@ -51,35 +26,25 @@ function injectApplyButton(post) {
   `;
 
   btn.onclick = () => {
-    chrome.runtime.sendMessage({ type: "GET_TAB" }, (tabs) => {
-      const tabId = tabs?.[0]?.id;
-      if (!tabId) return;
-
-      chrome.runtime.sendMessage({ type: "OPEN_PANEL", tabId });
-
-      chrome.runtime.sendMessage({
-        type: "UPDATE_PANEL_DATA",
-        payload: {
-          email,
-          jdText
-        }
-      });
+    chrome.runtime.sendMessage({ type: "OPEN_PANEL" });
+    chrome.runtime.sendMessage({
+      type: "SET_PANEL_DATA",
+      payload: { email }
     });
   };
 
   post.appendChild(btn);
 }
 
-// Scan posts
-function scanPosts() {
+function scan() {
   document
     .querySelectorAll("div.feed-shared-update-v2")
-    .forEach(injectApplyButton);
+    .forEach(injectButton);
 }
 
-scanPosts();
+scan();
 
-new MutationObserver(scanPosts).observe(document.body, {
+new MutationObserver(scan).observe(document.body, {
   childList: true,
   subtree: true
 });

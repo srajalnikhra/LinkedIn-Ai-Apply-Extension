@@ -1,43 +1,44 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
-  // Get active tab
-  if (message.type === "GET_TAB") {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      sendResponse(tabs);
-    });
-    return true;
-  }
-
   // Open side panel
   if (message.type === "OPEN_PANEL") {
-    chrome.sidePanel.open({ tabId: message.tabId });
+    const tabId = sender.tab?.id;
+    if (tabId) {
+      chrome.sidePanel.open({ tabId });
+    }
     return;
   }
 
-  // Forward post data to panel
-  if (message.type === "UPDATE_PANEL_DATA") {
+  // Forward data to panel
+  if (message.type === "SET_PANEL_DATA") {
     chrome.runtime.sendMessage({
-      type: "PANEL_DATA",
+      type: "SET_PANEL_DATA",
       payload: message.payload
     });
     return;
   }
 
-  // Generate AI email
+  // Generate email
   if (message.type === "GENERATE_AI_EMAIL") {
-    const { jdText } = message.payload;
+    const email = message.payload?.email || "";
 
-    const generatedEmail = `
+    let company = "";
+    if (email.includes("@")) {
+      company = email.split("@")[1].split(".")[0];
+      company = company.charAt(0).toUpperCase() + company.slice(1);
+    }
+
+    const emailBody = `
 Subject: Application for Golang Backend Developer
 
-Hi,
+Hi ${company || "there"},
 
-I came across your post regarding the Golang Backend Developer role.
+I came across your post regarding the Golang Backend Developer role${company ? ` at ${company}` : ""}.
 
-${jdText ? "Based on the job description, my experience aligns well with your requirements." : ""}
+I have strong experience in Golang, backend systems, and building scalable applications.
+I enjoy working on clean APIs, performance-focused services, and production-ready systems.
 
-I have strong experience in Golang, backend systems, and scalable applications.
-I would love to connect and discuss this opportunity further.
+I would love to connect and discuss how I can contribute to your team.
 
 Please find my resume attached.
 
@@ -47,9 +48,9 @@ Srajal
 
     sendResponse({
       success: true,
-      emailBody: generatedEmail
+      emailBody
     });
-  }
 
-  return true;
+    return true;
+  }
 });
