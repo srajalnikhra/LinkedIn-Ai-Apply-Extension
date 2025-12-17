@@ -1,54 +1,55 @@
+let activeApplyData = null;
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // Open side panel
   if (message.type === "OPEN_PANEL") {
     const tabId = sender.tab?.id;
-    if (tabId) {
-      chrome.sidePanel.open({ tabId });
-    }
+    if (tabId) chrome.sidePanel.open({ tabId });
     return;
   }
 
-  // Forward data to panel
-  if (message.type === "SET_PANEL_DATA") {
+  // New post selected
+  if (message.type === "POST_SELECTED") {
+    activeApplyData = message.payload;
+
     chrome.runtime.sendMessage({
-      type: "SET_PANEL_DATA",
-      payload: message.payload
+      type: "POST_SELECTED",
+      payload: activeApplyData
     });
     return;
   }
 
   // Generate email
   if (message.type === "GENERATE_AI_EMAIL") {
-    const email = message.payload?.email || "";
+    const email = activeApplyData?.email || "";
 
-    let company = "";
+    let company = "Hiring Manager";
     if (email.includes("@")) {
       company = email.split("@")[1].split(".")[0];
       company = company.charAt(0).toUpperCase() + company.slice(1);
     }
 
-    const emailBody = `
+    chrome.storage.local.get(["resumeText"], (data) => {
+      const resume = data.resumeText || "";
+
+      const emailBody = `
 Subject: Application for Golang Backend Developer
 
-Hi ${company || "there"},
+Dear ${company},
 
-I came across your post regarding the Golang Backend Developer role${company ? ` at ${company}` : ""}.
+I am writing to apply for the Golang Backend Developer role.
 
-I have strong experience in Golang, backend systems, and building scalable applications.
-I enjoy working on clean APIs, performance-focused services, and production-ready systems.
+I have hands-on experience in Golang, backend development, and scalable systems.
+${resume ? "My background includes real-world projects and strong problem-solving skills." : ""}
 
 I would love to connect and discuss how I can contribute to your team.
 
-Please find my resume attached.
-
-Best regards,
+Best regards,  
 Srajal
-    `.trim();
+      `.trim();
 
-    sendResponse({
-      success: true,
-      emailBody
+      sendResponse({ success: true, emailBody });
     });
 
     return true;

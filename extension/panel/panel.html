@@ -2,19 +2,26 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Apply via Email</title>
+  <title>LinkedIn AI Apply</title>
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #0b0f14;
+      background: #0a0a0a;
       color: #e6e6e6;
+      font-family: Arial, sans-serif;
       padding: 12px;
     }
 
-    h3 {
-      margin-top: 0;
-      color: #ffffff;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .icon-btn {
+      cursor: pointer;
+      font-size: 16px;
+      user-select: none;
     }
 
     input, textarea, button {
@@ -24,38 +31,74 @@
       padding: 8px;
       font-size: 13px;
       border-radius: 6px;
-      border: 1px solid #2d333b;
-      background: #161b22;
-      color: #e6e6e6;
+      border: none;
+    }
+
+    input, textarea {
+      background: #1c1c1c;
+      color: #ffffff;
+      border: 1px solid #333;
     }
 
     textarea {
-      resize: vertical;
-      min-height: 140px;
+      resize: none;
+      min-height: 120px;
     }
 
     button {
       background: #0a66c2;
-      border: none;
+      color: white;
       cursor: pointer;
     }
 
     button:hover {
       background: #004182;
     }
+
+    .status {
+      font-size: 12px;
+      color: #7dd3fc;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
   </style>
 </head>
 
 <body>
-  <h3>Apply via Email</h3>
 
-  <input id="email" placeholder="Recruiter email" />
+  <!-- APPLY VIEW -->
+  <div id="applyView" class="view active">
+    <div class="header">
+      <h3>Apply via Email</h3>
+      <span id="openSettings" class="icon-btn">⚙️</span>
+    </div>
 
-  <button id="generate">Generate AI Email</button>
+    <input id="recruiterEmail" placeholder="Recruiter email" />
 
-  <textarea id="emailBody" placeholder="AI-generated email will appear here..."></textarea>
+    <button id="generateEmail">Generate Email</button>
 
-  <button id="sendBtn">Send via Gmail</button>
+    <textarea id="emailBody" placeholder="Generated email will appear here..."></textarea>
+
+    <button id="sendGmail">Send via Gmail</button>
+  </div>
+
+  <!-- SETTINGS VIEW -->
+  <div id="settingsView" class="view">
+    <div class="header">
+      <span id="backBtn" class="icon-btn">⬅ Back</span>
+      <h3>Settings</h3>
+    </div>
+
+    <input type="file" id="resumeFile" accept=".pdf,.txt" />
+    <button id="uploadResume">Upload Resume</button>
+    <div id="resumeStatus" class="status">No resume uploaded</div>
+  </div>
 
   <script src="panel.js"></script>
 </body>

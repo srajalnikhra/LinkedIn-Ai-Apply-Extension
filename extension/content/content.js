@@ -1,5 +1,3 @@
-// Scan LinkedIn posts and inject Apply button
-
 function injectButton(post) {
   if (post.querySelector(".ai-apply-btn")) return;
 
@@ -12,7 +10,7 @@ function injectButton(post) {
 
   const btn = document.createElement("button");
   btn.className = "ai-apply-btn";
-  btn.innerText = "Apply (AI) · 1 email(s)";
+  btn.innerText = "Apply (AI) · 1 email";
   btn.style.cssText = `
     width: 100%;
     margin-top: 8px;
@@ -26,11 +24,12 @@ function injectButton(post) {
   `;
 
   btn.onclick = () => {
-    chrome.runtime.sendMessage({ type: "OPEN_PANEL" });
     chrome.runtime.sendMessage({
-      type: "SET_PANEL_DATA",
+      type: "POST_SELECTED",
       payload: { email }
     });
+
+    chrome.runtime.sendMessage({ type: "OPEN_PANEL" });
   };
 
   post.appendChild(btn);

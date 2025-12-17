@@ -1,39 +1,73 @@
-const emailInput = document.getElementById("email");
-const emailBody = document.getElementById("emailBody");
-const generateBtn = document.getElementById("generate");
-const sendBtn = document.getElementById("sendBtn");
+const applyView = document.getElementById("applyView");
+const settingsView = document.getElementById("settingsView");
 
-// Receive data from content script
+const openSettings = document.getElementById("openSettings");
+const backBtn = document.getElementById("backBtn");
+
+const recruiterEmail = document.getElementById("recruiterEmail");
+const emailBody = document.getElementById("emailBody");
+const resumeStatus = document.getElementById("resumeStatus");
+
+// -------- View Toggle --------
+openSettings.onclick = () => {
+  applyView.classList.remove("active");
+  settingsView.classList.add("active");
+};
+
+backBtn.onclick = () => {
+  settingsView.classList.remove("active");
+  applyView.classList.add("active");
+};
+
+// -------- Listen for new Apply --------
 chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === "SET_PANEL_DATA") {
-    emailInput.value = message.payload.email || "";
+  if (message.type === "POST_SELECTED") {
+    recruiterEmail.value = message.payload.email || "";
     emailBody.value = "";
+    settingsView.classList.remove("active");
+    applyView.classList.add("active");
   }
 });
 
-// Generate AI email
-generateBtn.onclick = () => {
+// -------- Resume Upload --------
+document.getElementById("uploadResume").onclick = () => {
+  const fileInput = document.getElementById("resumeFile");
+
+  if (!fileInput.files.length) {
+    resumeStatus.textContent = "Please choose a file first";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    chrome.storage.local.set({ resumeText: reader.result }, () => {
+      resumeStatus.textContent = "Resume uploaded successfully ✅";
+    });
+  };
+
+  reader.readAsText(fileInput.files[0]);
+};
+
+// -------- Generate Email --------
+document.getElementById("generateEmail").onclick = () => {
   chrome.runtime.sendMessage(
-    {
-      type: "GENERATE_AI_EMAIL",
-      payload: { email: emailInput.value }
-    },
+    { type: "GENERATE_AI_EMAIL" },
     (response) => {
-      if (response?.success) {
-        emailBody.value = response.emailBody;
-      }
+      emailBody.value = response?.emailBody || "Failed to generate email.";
     }
   );
 };
 
-// Send via Gmail
-sendBtn.onclick = () => {
-  const subject = encodeURIComponent("Job Application");
-  const body = encodeURIComponent(emailBody.value);
-  const to = encodeURIComponent(emailInput.value);
+// -------- Send Gmail --------
+document.getElementById("sendGmail").onclick = () => {
+  const body = emailBody.value;
+  const email = recruiterEmail.value;
+  if (!email || !body) return;
 
-  window.open(
-    `https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`,
-    "_blank"
-  );
+  const url =
+    `https://mail.google.com/mail/?view=cm&fs=1` +
+    `&to=${encodeURIComponent(email)}` +
+    `&body=${encodeURIComponent(body)}`;
+
+  chrome.tabs.create({ url });
 };
