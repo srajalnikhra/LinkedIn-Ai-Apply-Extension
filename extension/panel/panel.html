@@ -1,105 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>LinkedIn AI Apply</title>
+<meta charset="UTF-8" />
+<title>LinkedIn AI Apply</title>
 
-  <style>
-    body {
-      background: #0a0a0a;
-      color: #e6e6e6;
-      font-family: Arial, sans-serif;
-      padding: 12px;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .icon-btn {
-      cursor: pointer;
-      font-size: 16px;
-      user-select: none;
-    }
-
-    input, textarea, button {
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 10px;
-      padding: 8px;
-      font-size: 13px;
-      border-radius: 6px;
-      border: none;
-    }
-
-    input, textarea {
-      background: #1c1c1c;
-      color: #ffffff;
-      border: 1px solid #333;
-    }
-
-    textarea {
-      resize: none;
-      min-height: 120px;
-    }
-
-    button {
-      background: #0a66c2;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #004182;
-    }
-
-    .status {
-      font-size: 12px;
-      color: #7dd3fc;
-    }
-
-    .view {
-      display: none;
-    }
-
-    .view.active {
-      display: block;
-    }
-  </style>
+<style>
+body {
+  background:#0a0a0a;
+  color:#e6e6e6;
+  font-family:Arial;
+  padding:12px;
+}
+h3 { display:flex; justify-content:space-between; }
+input, textarea, button {
+  width:100%;
+  margin-bottom:10px;
+  padding:8px;
+  border-radius:6px;
+  border:none;
+}
+input, textarea { background:#1c1c1c; color:white; }
+textarea { min-height:140px; resize:none; }
+button { background:#0a66c2; color:white; cursor:pointer; }
+.hidden { display:none; }
+.status { font-size:12px; color:#7dd3fc; }
+</style>
 </head>
 
 <body>
 
-  <!-- APPLY VIEW -->
-  <div id="applyView" class="view active">
-    <div class="header">
-      <h3>Apply via Email</h3>
-      <span id="openSettings" class="icon-btn">⚙️</span>
-    </div>
+<div id="applyView">
+  <h3>
+    Apply via AI
+    <span id="openSettings">⚙️</span>
+  </h3>
 
-    <input id="recruiterEmail" placeholder="Recruiter email" />
+  <input id="recruiterEmail" placeholder="Recruiter email" />
+  <button id="genEmail">Generate Email</button>
+  <button id="genCover">Generate Cover Letter</button>
 
-    <button id="generateEmail">Generate Email</button>
+  <textarea id="output"></textarea>
+  <button id="sendGmail">Send via Gmail</button>
+</div>
 
-    <textarea id="emailBody" placeholder="Generated email will appear here..."></textarea>
+<div id="settingsView" class="hidden">
+  <h3><span id="backBtn">←</span> Settings</h3>
 
-    <button id="sendGmail">Send via Gmail</button>
-  </div>
+  <input id="apiKey" placeholder="Gemini API Key" />
+  <button id="saveKey">Save API Key</button>
+  <div id="keyStatus" class="status"></div>
 
-  <!-- SETTINGS VIEW -->
-  <div id="settingsView" class="view">
-    <div class="header">
-      <span id="backBtn" class="icon-btn">⬅ Back</span>
-      <h3>Settings</h3>
-    </div>
+  <input type="file" id="resumeFile" />
+  <button id="uploadResume">Upload Resume</button>
+  <div id="resumeStatus" class="status"></div>
+</div>
 
-    <input type="file" id="resumeFile" accept=".pdf,.txt" />
-    <button id="uploadResume">Upload Resume</button>
-    <div id="resumeStatus" class="status">No resume uploaded</div>
-  </div>
-
-  <script src="panel.js"></script>
+<script type="module" src="panel.js"></script>
 </body>
 </html>

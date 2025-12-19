@@ -1,57 +1,102 @@
-let activeApplyData = null;
+// 1. Helper to clean the key
+function cleanKey(key) {
+  if (!key) return "";
+  return key.trim().replace(/[\r\n]/g, "");
+}
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+// 2. Helper to FIND the correct model name dynamically
+async function getWorkingModel(apiKey) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+  
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
 
-  // Open side panel
-  if (message.type === "OPEN_PANEL") {
-    const tabId = sender.tab?.id;
-    if (tabId) chrome.sidePanel.open({ tabId });
-    return;
-  }
-
-  // New post selected
-  if (message.type === "POST_SELECTED") {
-    activeApplyData = message.payload;
-
-    chrome.runtime.sendMessage({
-      type: "POST_SELECTED",
-      payload: activeApplyData
-    });
-    return;
-  }
-
-  // Generate email
-  if (message.type === "GENERATE_AI_EMAIL") {
-    const email = activeApplyData?.email || "";
-
-    let company = "Hiring Manager";
-    if (email.includes("@")) {
-      company = email.split("@")[1].split(".")[0];
-      company = company.charAt(0).toUpperCase() + company.slice(1);
+    if (!response.ok || !data.models) {
+      console.warn("Could not list models. Defaulting to Flash.");
+      return "gemini-1.5-flash"; 
     }
 
-    chrome.storage.local.get(["resumeText"], (data) => {
-      const resume = data.resumeText || "";
+    // Filter for models that support generating content
+    const validModels = data.models.filter(m => 
+      m.supportedGenerationMethods && 
+      m.supportedGenerationMethods.includes("generateContent")
+    );
 
-      const emailBody = `
-Subject: Application for Golang Backend Developer
+    // Strategy: Try to find Flash, then Pro, then whatever is left
+    const flashModel = validModels.find(m => m.name.includes("flash"));
+    if (flashModel) return flashModel.name.replace("models/", "");
 
-Dear ${company},
+    const proModel = validModels.find(m => m.name.includes("pro"));
+    if (proModel) return proModel.name.replace("models/", "");
 
-I am writing to apply for the Golang Backend Developer role.
+    // Fallback to the first available model
+    if (validModels.length > 0) {
+      return validModels[0].name.replace("models/", "");
+    }
 
-I have hands-on experience in Golang, backend development, and scalable systems.
-${resume ? "My background includes real-world projects and strong problem-solving skills." : ""}
+    return "gemini-1.5-flash"; // Absolute fallback
 
-I would love to connect and discuss how I can contribute to your team.
+  } catch (e) {
+    console.error("Error fetching model list:", e);
+    return "gemini-1.5-flash";
+  }
+}
 
-Best regards,  
-Srajal
-      `.trim();
+// 3. Helper to Generate Content
+async function generateContent(apiKey, prompt) {
+  const cleanApiKey = cleanKey(apiKey);
+  
+  // STEP 1: Auto-detect the correct model for this key
+  const modelName = await getWorkingModel(cleanApiKey);
+  console.log(`[LinkedIn AI] Auto-detected model: ${modelName}`);
 
-      sendResponse({ success: true, emailBody });
+  // STEP 2: Call the API with the detected model
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${cleanApiKey}`;
+  
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error?.message || `API Error (${modelName})`);
+  }
+
+  return data.candidates?.[0]?.content?.parts?.[0]?.text;
+}
+
+// 4. Message Listener
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+
+  if (msg.type === "OPEN_PANEL") {
+    if (sender.tab?.id) chrome.sidePanel.open({ tabId: sender.tab.id });
+  }
+
+  if (msg.type === "SET_PANEL_DATA") {
+    chrome.storage.local.set({
+      recruiterEmail: msg.payload.email || "",
+      postText: msg.payload.postText || ""
     });
+  }
 
-    return true;
+  if (msg.type === "GENERATE_WITH_GEMINI") {
+    (async () => {
+      try {
+        const text = await generateContent(msg.apiKey, msg.prompt);
+        sendResponse({ text: text });
+      } catch (err) {
+        console.error("Generation Failed:", err);
+        sendResponse({ 
+          text: `FAILED: ${err.message}. \n\nCheck Console (F12) > Background Page for details.` 
+        });
+      }
+    })();
+    return true; // Keep channel open
   }
 });
