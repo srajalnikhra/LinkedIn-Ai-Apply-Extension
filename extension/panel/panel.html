@@ -5,53 +5,172 @@
 <title>LinkedIn AI Apply</title>
 
 <style>
-body {
-  background:#0a0a0a;
-  color:#e6e6e6;
-  font-family:Arial;
-  padding:12px;
-}
-h3 { display:flex; justify-content:space-between; }
-input, textarea, button {
-  width:100%;
-  margin-bottom:10px;
-  padding:8px;
-  border-radius:6px;
-  border:none;
-}
-input, textarea { background:#1c1c1c; color:white; }
-textarea { min-height:140px; resize:none; }
-button { background:#0a66c2; color:white; cursor:pointer; }
-.hidden { display:none; }
-.status { font-size:12px; color:#7dd3fc; }
+  body {
+    background:#000000;
+    color:#e6e6e6;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    padding:16px;
+    margin:0;
+  }
+
+  h3 {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:0;
+    font-size:16px;
+    border-bottom:1px solid #333;
+    padding-bottom:10px;
+  }
+
+  input, select, textarea, button {
+    width:100%;
+    box-sizing:border-box;
+    margin-bottom:12px;
+    padding:10px;
+    border-radius:6px;
+    border:1px solid #333;
+    font-size:13px;
+  }
+
+  input, textarea, select {
+    background:#1c1c1c;
+    color:white;
+    outline:none;
+  }
+
+  input:focus, textarea:focus {
+    border-color:#0a66c2;
+  }
+
+  textarea {
+    min-height:150px;
+    resize:vertical;
+    line-height:1.4;
+    font-family:monospace;
+    white-space:pre-wrap;
+  }
+
+  button {
+    font-weight:600;
+    cursor:pointer;
+    transition:opacity 0.2s;
+    border:none;
+  }
+
+  button:hover { opacity:0.9; }
+
+  .btn-primary { background:#0a66c2; color:white; }
+  .btn-secondary { background:#333; color:white; }
+  .btn-action {
+    background:#1c1c1c;
+    border:1px solid #0a66c2;
+    color:#0a66c2;
+    margin-top:-5px;
+    margin-bottom:15px;
+  }
+
+  .hidden { display:none; }
+
+  .status {
+    font-size:12px;
+    color:#7dd3fc;
+    margin-bottom:10px;
+  }
+
+  .label {
+    font-size:11px;
+    color:#888;
+    margin-bottom:4px;
+    display:block;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+
+  .divider {
+    height:1px;
+    background:#333;
+    margin:20px 0;
+  }
 </style>
 </head>
 
 <body>
 
+<!-- ================= APPLY VIEW ================= -->
 <div id="applyView">
   <h3>
-    Apply via AI
-    <span id="openSettings">⚙️</span>
+    <span>AI Apply Assistant</span>
+    <span id="openSettings" style="cursor:pointer;">⚙️</span>
   </h3>
 
-  <input id="recruiterEmail" placeholder="Recruiter email" />
-  <button id="genEmail">Generate Email</button>
-  <button id="genCover">Generate Cover Letter</button>
+  <label class="label">Recruiter Email</label>
+  <input id="recruiterEmail" placeholder="e.g. recruiter@company.com" />
 
-  <textarea id="output"></textarea>
-  <button id="sendGmail">Send via Gmail</button>
+  <label class="label">Email Tone</label>
+  <select id="toneSelect">
+    <option value="Professional">Professional (Standard)</option>
+    <option value="Confident">Confident & Direct</option>
+    <option value="Enthusiastic">Enthusiastic</option>
+  </select>
+
+  <div style="display:flex; gap:10px;">
+    <button id="genEmail" class="btn-primary">Generate Email</button>
+    <button id="genCover" class="btn-secondary">Generate Cover Letter</button>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <label class="label">Generated Output</label>
+    <textarea id="output" placeholder="Generated text will appear here..."></textarea>
+    <button id="sendGmail" class="btn-action">📧 Open in Gmail</button>
+    <button id="copyText" class="btn-action">📋 Copy to Clipboard</button>
+  </div>
 </div>
 
+<!-- ================= SETTINGS VIEW ================= -->
 <div id="settingsView" class="hidden">
-  <h3><span id="backBtn">←</span> Settings</h3>
+  <h3>
+    <span id="backBtn" style="cursor:pointer;">← Back</span>
+    Settings
+  </h3>
 
-  <input id="apiKey" placeholder="Gemini API Key" />
-  <button id="saveKey">Save API Key</button>
+  <!-- API KEY -->
+  <label class="label">Gemini API Key</label>
+  <input id="apiKey" type="password" placeholder="Paste API Key here" />
+  <button id="saveKey" class="btn-primary">Save API Key</button>
   <div id="keyStatus" class="status"></div>
 
-  <input type="file" id="resumeFile" />
-  <button id="uploadResume">Upload Resume</button>
+  <div class="divider"></div>
+
+  <!-- PERSONAL PROFILE -->
+  <label class="label" style="color:#fff; margin-bottom:10px;">
+    👤 Personal Profile (Signature)
+  </label>
+
+  <label class="label">Full Name</label>
+  <input id="userName" placeholder="e.g. Srajal Nikhra" />
+
+  <label class="label">Your Email</label>
+  <input id="userEmail" placeholder="e.g. srajalnikhra@gmail.com" />
+
+  <label class="label">Phone Number</label>
+  <input id="userPhone" placeholder="e.g. +91-9555178092" />
+
+  <label class="label">LinkedIn URL</label>
+  <input id="userLinkedIn" placeholder="https://linkedin.com/in/..." />
+
+  <label class="label">GitHub URL</label>
+  <input id="userGithub" placeholder="https://github.com/..." />
+
+  <button id="saveProfile" class="btn-secondary">Save Profile</button>
+  <div id="profileStatus" class="status"></div>
+
+  <div class="divider"></div>
+
+  <!-- RESUME -->
+  <label class="label">Upload Resume (PDF)</label>
+  <input type="file" id="resumeFile" accept=".pdf" />
+  <button id="uploadResume" class="btn-secondary">Process Resume</button>
   <div id="resumeStatus" class="status"></div>
 </div>
 
