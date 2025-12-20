@@ -3,10 +3,11 @@
   "name": "LinkedIn AI Apply Extension",
   "version": "1.0.0",
   "description": "Generate job application emails & cover letters using AI",
-  "permissions": ["storage", "tabs", "sidePanel"],
+  "permissions": ["storage", "tabs", "sidePanel", "identity"],
   "host_permissions": [
     "https://www.linkedin.com/*",
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "https://gmail.googleapis.com/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -19,5 +20,17 @@
   ],
   "side_panel": {
     "default_path": "panel/panel.html"
-  }
+  },
+  "oauth2": {
+    "client_id": "176276084086-4aubdd0j6i3t64hjnpgagn7ac43a9vge.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/gmail.send"
+    ]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["lib/pdf.worker.mjs", "lib/jspdf.umd.min.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
