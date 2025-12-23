@@ -12,21 +12,24 @@
   input, select, textarea, button { width:100%; box-sizing:border-box; margin-bottom:12px; padding:10px; border-radius:6px; border:1px solid #333; font-size:13px; }
   input, textarea, select { background:#1c1c1c; color:white; outline:none; }
   input:focus, textarea:focus { border-color: #0a66c2; }
-  textarea { min-height:150px; resize:vertical; line-height: 1.4; font-family: monospace; white-space: pre-wrap; }
+  textarea { min-height:120px; resize:vertical; line-height: 1.4; font-family: monospace; white-space: pre-wrap; }
   
   /* Buttons */
   button { font-weight:600; cursor:pointer; transition: opacity 0.2s; border:none; }
   button:hover { opacity:0.9; }
   .btn-primary { background:#0a66c2; color:white; }
   .btn-secondary { background:#333; color:white; }
-  .btn-success { background:#057642; color:white; margin-top: -5px; margin-bottom: 15px; }
-  .btn-outline { background:transparent; border: 1px solid #555; color: #aaa; margin-top: -5px; }
+  .btn-success { background:#057642; color:white; margin-bottom: 15px; }
+  .btn-outline { background:transparent; border: 1px solid #555; color: #aaa; padding: 5px; font-size: 11px; margin-top: -5px;}
 
   /* Utils */
   .hidden { display:none; }
   .status { font-size:12px; color:#7dd3fc; margin-bottom: 10px; }
   .label { font-size: 11px; color: #888; margin-bottom: 4px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
   .divider { height: 1px; background: #333; margin: 20px 0; }
+  
+  /* Tabs/Sections */
+  .section-box { border-bottom: 1px solid #333; margin-bottom: 15px; padding-bottom: 10px; }
 </style>
 </head>
 
@@ -41,27 +44,29 @@
   <label class="label">Recruiter Email</label>
   <input id="recruiterEmail" placeholder="e.g. recruiter@company.com" />
 
-  <label class="label">Email Tone</label>
-  <select id="toneSelect">
-    <option value="Professional">Professional (Standard)</option>
-    <option value="Confident">Confident & Direct</option>
-    <option value="Enthusiastic">Enthusiastic</option>
-  </select>
-
   <div style="display: flex; gap: 10px;">
     <button id="genEmail" class="btn-primary">Generate Email</button>
     <button id="genCover" class="btn-secondary">Generate Cover Letter</button>
   </div>
 
-  <div style="margin-bottom: 20px;">
-    <label class="label">Generated Output</label>
-    <textarea id="output" placeholder="Generated text will appear here..."></textarea>
-    
-    <button id="directSend" class="btn-success">🚀 Send Directly (Attach Resume + Cover)</button>
-    <div id="sendStatus" class="status"></div>
-
-    <button id="copyText" class="btn-outline">📋 Copy to Clipboard</button>
+  <div class="section-box">
+    <label class="label">📧 Email Body</label>
+    <textarea id="emailOutput" placeholder="Email text goes here..."></textarea>
   </div>
+
+  <div class="section-box">
+    <label class="label">📝 Cover Letter</label>
+    <textarea id="coverOutput" placeholder="Cover letter text goes here..."></textarea>
+    <div style="display:flex; justify-content:space-between;">
+        <button id="downloadPdf" class="btn-outline">⬇️ Download PDF</button>
+        <button id="copyCover" class="btn-outline">📋 Copy Text</button>
+    </div>
+  </div>
+
+  <label class="label">Final Action</label>
+  <button id="directSend" class="btn-success">🚀 Send All (Email + Resume + Cover PDF)</button>
+  <div id="sendStatus" class="status"></div>
+
 </div>
 
 <div id="settingsView" class="hidden">

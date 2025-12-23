@@ -22,7 +22,7 @@
     "default_path": "panel/panel.html"
   },
   "oauth2": {
-    "client_id": "176276084086-4aubdd0j6i3t64hjnpgagn7ac43a9vge.apps.googleusercontent.com",
+    "client_id": "176276084086-elucl5bp2acr3v6egrrf99ic5nvfusdq.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/gmail.send"
     ]
