@@ -28,7 +28,7 @@ function injectButton(post) {
     background-color: #0a66c2;
     color: white;
     border: none;
-    border-radius: 20px;
+    border-radius: 0 0 8px 8px;
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;

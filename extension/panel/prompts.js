@@ -12,8 +12,8 @@ IMPORTANT RULES:
 1. Write ONLY the email body.
 2. Do NOT write a subject line in the body.
 3. Do NOT sign off (No "Sincerely", No Name). I will append the signature automatically.
-4. Keep it VERY short (4-6 lines max).
-5. Greet the recruiter by name if possible (infer from email).
+4. Keep it VERY short (4-6 lines max) and 2 or max 3 paragraphs.
+5. Greet with dear the recruiter by name if possible (infer from email).
 6. Fully ATS-compatible formatting.
 
 STRUCTURE:
@@ -22,7 +22,7 @@ STRUCTURE:
 - Closing: Mention resume attached. End politely.
 
 OUTPUT FORMAT:
-TITLE: [Extract Job Title Here]
+TITLE: [Extract Simple and Short Job Title Here for example for a different jd: "Golang Developer Intern at StackGuard]
 |||
 [Write Email Body Here]
 `;
