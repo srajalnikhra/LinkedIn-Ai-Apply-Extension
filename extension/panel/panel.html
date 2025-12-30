@@ -30,8 +30,7 @@
     font-size: 19px;
     font-weight: 600;
     color: #ffffff;
-    padding-bottom: 15px;
-    padding-top: 4px;
+    padding-bottom: 14px;
     border-bottom: 1px solid #2a2a2a;
   }
   
@@ -169,12 +168,12 @@
   }
   
   .btn-success { 
-    background: linear-gradient(135deg, #0b9741ff 0%, #099c53ff 100%);
+    background: linear-gradient(135deg, #069954 0%, #05914f 100%);
     color:#ffffff; 
     padding: 14px 20px;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
-    box-shadow: 0 4px 16px rgba(16, 185, 86, 0.47);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.548);
     position: fixed;
     bottom: 0;
     left: 0;
@@ -348,12 +347,12 @@
 
   <div class="section-box" style="margin-bottom: 8px;">
     <label class="label">Email Body</label>
-    <textarea id="emailOutput" spellcheck="false" placeholder="Email text goes here..."></textarea>
+    <textarea id="emailOutput" placeholder="Email text goes here..."></textarea>
   </div>
 
   <div class="section-box">
     <label class="label">Cover Letter</label>
-    <textarea id="coverOutput" spellcheck="false" placeholder="Cover letter text goes here..."></textarea>
+    <textarea id="coverOutput" placeholder="Cover letter text goes here..."></textarea>
     <div style="display:flex; justify-content:space-between; gap: 10px; margin-top: -8px;">
         <button id="downloadPdf" class="btn-outline">Download PDF</button>
         <button id="copyCover" class="btn-outline">Copy Text</button>
@@ -399,9 +398,23 @@
     <option value="7">Eighth Gmail Account (user = 7)</option>
     <option value="8">Ninth Gmail Account (user = 8)</option>
     <option value="9">Tenth Gmail Account (user = 9)</option>
+    <option value="10">Eleventh Gmail Account (user = 10)</option>
   </select>
   <button id="saveGmailAccount" class="btn-primary">Save Gmail Account</button>
   <div id="gmailAccountStatus" class="status"></div>
+
+  <div class="divider"></div>
+
+  <button id="quickStartToggle" class="btn-secondary" style="margin-bottom: 8px;">Quick Start Guide</button>
+  <div id="quickStartContent" class="hidden" style="font-size: 10px; color: #999999; line-height: 1.6; margin-top: 8px; padding: 10px 12px; background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 6px;">
+    <div style="margin-bottom: 6px;">1. Add your Profile details and upload your resume (PDF).</div>
+    <div style="margin-bottom: 6px;">2. Get a free Gemini API key from Google AI Studio and save it in Settings.</div>
+    <div style="margin-bottom: 6px;">3. The default model is auto-selected for best results; change it if limits are reached.</div>
+    <div style="margin-bottom: 6px;">4. Select the Gmail account by matching the user number shown in your Gmail inbox.</div>
+    <div style="margin-bottom: 6px;">5. Browse LinkedIn job posts — Apply (AI) 🚀 appears on posts with a recruiter email.</div>
+    <div style="margin-bottom: 6px;">6. Click Apply (AI) 🚀  to generate the email and cover letter (you can edit or regenerate).</div>
+    <div style="margin-bottom: 0;">7. Click Send via Gmail, attach the resume and cover letter, then click Send.</div>
+  </div>
 </div>
 
 <div id="profileView" class="hidden">
@@ -412,7 +425,7 @@
   <label class="label">Your Email</label>
   <input id="userEmail" placeholder="e.g. srajalnikhra@gmail.com" />
   <label class="label">Phone Number</label>
-  <input id="userPhone" placeholder="e.g. +91-9555178092" />
+  <input id="userPhone" placeholder="e.g. 9170178092" />
   <label class="label">LinkedIn URL</label>
   <input id="userLinkedIn" placeholder="LinkedIn URL" />
   <label class="label">GitHub URL</label>
