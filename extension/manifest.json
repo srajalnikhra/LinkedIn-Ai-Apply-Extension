@@ -11,11 +11,7 @@
     "128": "icons/icon128.png"
   },
 
-  "permissions": [
-    "storage",
-    "tabs",
-    "sidePanel"
-  ],
+  "permissions": ["storage", "tabs", "sidePanel"],
 
   "host_permissions": [
     "https://www.linkedin.com/*",
@@ -40,10 +36,7 @@
 
   "web_accessible_resources": [
     {
-      "resources": [
-        "lib/pdf.worker.mjs",
-        "lib/jspdf.umd.min.js"
-      ],
+      "resources": ["lib/pdf.worker.mjs", "lib/jspdf.umd.min.js"],
       "matches": ["<all_urls>"]
     }
   ]

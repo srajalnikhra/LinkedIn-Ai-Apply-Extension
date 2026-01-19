@@ -14,7 +14,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "GENERATE_WITH_GEMINI") {
     // Use model from message (for dual-model support) or fall back to stored model
     const MODEL_NAME = msg.model || "gemini-3-flash-preview";
-    
+
     console.log(`[BG] Using model: ${MODEL_NAME}`);
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${msg.apiKey}`;
@@ -30,7 +30,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
           sendResponse({ success: true, text: text });
         } else {
-          console.error("Gemini API Error:", data); 
+          console.error("Gemini API Error:", data);
           sendResponse({
             success: false,
             error: data.error?.message || "Unknown Gemini Error",

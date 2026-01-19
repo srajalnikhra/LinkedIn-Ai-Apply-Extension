@@ -7,11 +7,13 @@ function injectButton(post) {
 
   // 3. STRICT Email Regex
   // Matches standard emails (e.g., name@company.com)
-  const emailMatch = text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
+  const emailMatch = text.match(
+    /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/
+  );
 
   // 4. IF NO EMAIL, STOP IMMEDIATELY
   if (!emailMatch) {
-    return; 
+    return;
   }
 
   // Debugging: Check console to see what email triggered the button
@@ -36,17 +38,30 @@ function injectButton(post) {
     z-index: 9999;
   `;
 
+  btn.style.transition =
+    "background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, box-shadow 0.2s ease";
+
+  btn.onmouseenter = () => {
+    btn.style.backgroundColor = "#0059b3";
+    btn.style.boxShadow = "0 8px 20px rgba(0,0,0,0.15)";
+  };
+
+  btn.onmouseleave = () => {
+    btn.style.backgroundColor = "#0a66c2";
+    btn.style.boxShadow = "none";
+  };
+
   btn.onclick = (e) => {
-    e.stopPropagation();
     e.preventDefault();
+    e.stopPropagation();
 
     // Send data to background
     chrome.runtime.sendMessage({
       type: "SET_PANEL_DATA",
       payload: {
         email: emailMatch[0], // Send the found email
-        postText: text
-      }
+        postText: text,
+      },
     });
 
     // Open Panel
@@ -54,10 +69,11 @@ function injectButton(post) {
   };
 
   // 6. Inject Button
-  const actionContainer = post.querySelector(".feed-shared-update-v2__description-wrapper") 
-                       || post.querySelector(".feed-shared-update-v2__actions") 
-                       || post;
-  
+  const actionContainer =
+    post.querySelector(".feed-shared-update-v2__description-wrapper") ||
+    post.querySelector(".feed-shared-update-v2__actions") ||
+    post;
+
   actionContainer.appendChild(btn);
 }
 
