@@ -45,6 +45,12 @@ const elements = {
   gmailAccountStatus: document.getElementById("gmailAccountStatus"),
   quickStartToggle: document.getElementById("quickStartToggle"),
   quickStartContent: document.getElementById("quickStartContent"),
+    jdView: document.getElementById("jdView"),
+  openJD: document.getElementById("openJD"),
+  backBtnJD: document.getElementById("backBtnJD"),
+  jdInput: document.getElementById("jdInput"),
+  applyJD: document.getElementById("applyJD"),
+  clearJD: document.getElementById("clearJD"),
 };
 
 // --- DATE FORMAT MIGRATION (one-time) ---
@@ -153,6 +159,12 @@ chrome.storage.local.get(null, (d) => {
 // Listen for storage changes
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === "local" && changes.postText) {
+
+    // Clear manual JD when a new post loads
+  if (elements.jdInput) {
+    elements.jdInput.value = "";
+  }
+
     chrome.storage.local.get(
       ["recruiterEmail", "geminiKey", "resumeText"],
       (d) => {
@@ -191,6 +203,27 @@ elements.backBtn.onclick = () => {
 elements.backBtnProfile.onclick = () => {
   elements.settingsView.classList.add("hidden");
   elements.profileView.classList.add("hidden");
+  elements.applyView.classList.remove("hidden");
+};
+
+// JD PAGE NAVIGATION
+elements.openJD.onclick = () => {
+  elements.applyView.classList.add("hidden");
+  elements.settingsView.classList.add("hidden");
+  elements.profileView.classList.add("hidden");
+  elements.jdView.classList.remove("hidden");
+
+  chrome.storage.local.get(["postText"], (data) => {
+    if (data.postText) {
+      elements.jdInput.value = data.postText;
+    }
+  });
+
+  elements.jdInput.focus();
+};
+
+elements.backBtnJD.onclick = () => {
+  elements.jdView.classList.add("hidden");
   elements.applyView.classList.remove("hidden");
 };
 
@@ -635,4 +668,51 @@ elements.directSend.onclick = async () => {
       }, 1000);
     }
   );
+};
+
+// --- APPLY MANUAL JD ---
+
+// Clear JD Button
+elements.clearJD.onclick = () => {
+  elements.jdInput.value = "";
+}
+
+elements.applyJD.onclick = () => {
+
+  const jdText = elements.jdInput.value.trim();
+
+  if (!jdText) {
+    alert("Please paste the Job Description first.");
+    return;
+  }
+
+  const emailMatch = jdText.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
+
+let recruiterEmail = "";
+
+if (emailMatch) {
+  recruiterEmail = emailMatch[0];
+
+  elements.recruiterEmail.value = recruiterEmail;
+  elements.recruiterEmail.placeholder = "e.g. recruiter@company.com";
+
+} else {
+
+  // clear previous email completely
+  recruiterEmail = "";
+
+  elements.recruiterEmail.value = "";
+  elements.recruiterEmail.placeholder =
+    "Recruiter email not found in JD – Enter manually";
+
+}
+
+  chrome.storage.local.set({
+    postText: jdText,
+    recruiterEmail: recruiterEmail
+  });
+
+  elements.jdView.classList.add("hidden");
+  elements.applyView.classList.remove("hidden");
+
 };
