@@ -1,17 +1,17 @@
+// Inject the "Apply (AI)" button into a specific LinkedIn post
 function injectButton(post) {
   // 1. Avoid duplicates
   if (post.querySelector(".ai-apply-btn")) return;
 
-  // 2. Extract Text
+  // 2. Extract the text content from the post
   const text = post.innerText || "";
 
-  // 3. STRICT Email Regex
-  // Matches standard emails (e.g., name@company.com)
+  // 3. Extract the first email address found in the post text
   const emailMatch = text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
 
   // 4. IF NO EMAIL, STOP IMMEDIATELY
   if (!emailMatch) {
-    return; 
+    return;
   }
 
   // Debugging: Check console to see what email triggered the button
@@ -40,7 +40,7 @@ function injectButton(post) {
     e.stopPropagation();
     e.preventDefault();
 
-    // Send data to background
+    // Send extracted email and post data to the background script
     chrome.runtime.sendMessage({
       type: "SET_PANEL_DATA",
       payload: {
@@ -49,24 +49,24 @@ function injectButton(post) {
       }
     });
 
-    // Open Panel
+    // Open the side panel for the user to proceed
     chrome.runtime.sendMessage({ type: "OPEN_PANEL" });
   };
 
-  // 6. Inject Button
-  const actionContainer = post.querySelector(".feed-shared-update-v2__description-wrapper") 
-                       || post.querySelector(".feed-shared-update-v2__actions") 
-                       || post;
-  
+  // 6. Append the button to the post's action container
+  const actionContainer = post.querySelector(".feed-shared-update-v2__description-wrapper")
+    || post.querySelector(".feed-shared-update-v2__actions")
+    || post;
+
   actionContainer.appendChild(btn);
 }
 
+// Continuously scan the LinkedIn feed for new posts
 function scan() {
-  // Select all post containers
   const posts = document.querySelectorAll("div.feed-shared-update-v2");
   posts.forEach(injectButton);
 }
 
-// Start scanning
+// Initialize scanning loop to handle dynamically loaded posts
 scan();
-setInterval(scan, 2000); // Simple interval to catch new scroll items
+setInterval(scan, 2000);

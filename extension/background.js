@@ -1,10 +1,13 @@
-// ==============================
-// LinkedIn AI Apply - Background
-// ==============================
+// ==============================================================
+// LinkedIn AI Apply - Background Service Worker
+// Handles script injection and background tasks for the extension
+// ==============================================================
 
+// Track tabs where the content script has already been injected
 const injectedTabs = new Set();
 const LOG_PREFIX = "[LinkedIn-AI]";
 
+// Injects the main LinkedIn Apply AI script into a specific tab
 async function injectLinkedInScript(tabId) {
   if (injectedTabs.has(tabId)) {
     console.log(`${LOG_PREFIX} Script already injected in tab`, tabId);
@@ -22,6 +25,7 @@ async function injectLinkedInScript(tabId) {
 
         console.log("[LinkedIn-AI][Content] Script activated");
 
+        // Scan the page DOM to find posts containing recruiter emails
         function findEmailsInPage() {
           const emailRegex =
             /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g;
@@ -50,7 +54,7 @@ async function injectLinkedInScript(tabId) {
                   text.includes("Comment") ||
                   text.includes("Repost"))
               ) {
-                // 🔥 HOME FIX: normalize to real feed post if present
+                // Locate the parent container of the actual feed post
                 const realPost =
                   parent.closest(".feed-shared-update-v2") || parent;
 
@@ -78,6 +82,7 @@ async function injectLinkedInScript(tabId) {
           return results;
         }
 
+        // Create and insert the AI Apply button into the post UI
         function injectButton({ email, container, text }) {
           if (container.querySelector(".ai-apply-btn")) return;
 
@@ -128,7 +133,7 @@ async function injectLinkedInScript(tabId) {
             chrome.runtime.sendMessage({ type: "OPEN_PANEL" });
           };
 
-          // 🔒 SEARCH-safe placement (unchanged)
+          // Safe placement for the button to avoid breaking LinkedIn's UI layout
           const actionBar = container.querySelector(
             '[aria-label*="Like"], .feed-shared-social-action-bar'
           );
@@ -140,6 +145,7 @@ async function injectLinkedInScript(tabId) {
           }
         }
 
+        // Periodically scan the DOM for new posts and inject buttons
         function scan() {
           findEmailsInPage().forEach(injectButton);
         }
@@ -155,9 +161,10 @@ async function injectLinkedInScript(tabId) {
   }
 }
 
-// ==============================
-// Auto inject
-// ==============================
+// ==========================================
+// Auto Inject Content Script on Page Load
+// ==========================================
+// Listen for completed tab updates on LinkedIn pages
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (
     changeInfo.status === "complete" &&
@@ -168,14 +175,16 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-// ==============================
-// Message handlers (UNCHANGED)
-// ==============================
+// ==========================================
+// Message Handlers for Extension Components
+// ==========================================
+// Listen for messages from content scripts or UI panels
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "OPEN_PANEL" && sender.tab?.id) {
     chrome.sidePanel.open({ tabId: sender.tab.id });
   }
 
+  // Store recruiter email and post text in local storage for panel access
   if (msg.type === "SET_PANEL_DATA") {
     chrome.storage.local.set({
       recruiterEmail: msg.payload.email || "",
@@ -183,6 +192,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
   }
 
+  // Handle requests to generate email or cover letter using Google's Gemini API
   if (msg.type === "GENERATE_WITH_GEMINI") {
     const MODEL = msg.model || "gemini-3-flash-preview";
 

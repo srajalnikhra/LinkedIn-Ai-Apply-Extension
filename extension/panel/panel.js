@@ -1,3 +1,7 @@
+// ==========================================
+// Main UI Logic for the Extension Side Panel
+// ==========================================
+
 import * as pdfjsLib from "../lib/pdf.mjs";
 import { EMAIL_PROMPT, COVER_LETTER_PROMPT } from "./prompts.js";
 
@@ -5,7 +9,8 @@ import { EMAIL_PROMPT, COVER_LETTER_PROMPT } from "./prompts.js";
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   chrome.runtime.getURL("lib/pdf.worker.mjs");
 
-// --- DOM ELEMENTS ---
+// --- UI Element References ---
+// Map DOM elements to standard identifiers for easy access
 const elements = {
   applyView: document.getElementById("applyView"),
   settingsView: document.getElementById("settingsView"),
@@ -45,7 +50,7 @@ const elements = {
   gmailAccountStatus: document.getElementById("gmailAccountStatus"),
   quickStartToggle: document.getElementById("quickStartToggle"),
   quickStartContent: document.getElementById("quickStartContent"),
-    jdView: document.getElementById("jdView"),
+  jdView: document.getElementById("jdView"),
   openJD: document.getElementById("openJD"),
   backBtnJD: document.getElementById("backBtnJD"),
   jdInput: document.getElementById("jdInput"),
@@ -53,7 +58,8 @@ const elements = {
   clearJD: document.getElementById("clearJD"),
 };
 
-// --- DATE FORMAT MIGRATION (one-time) ---
+// --- Legacy Date Format Migration ---
+// Convert older date string formats to standard DD/MM/YYYY
 chrome.storage.local.get(null, (data) => {
   const convertDateFormat = (dateStr) => {
     if (!dateStr || typeof dateStr !== "string") return dateStr;
@@ -111,7 +117,8 @@ chrome.storage.local.get(null, (data) => {
   }
 });
 
-// --- INITIAL LOAD ---
+// --- Panel Initialization ---
+// Load saved user data and preferences from local storage on startup
 chrome.storage.local.get(null, (d) => {
   if (d.recruiterEmail) elements.recruiterEmail.value = d.recruiterEmail;
   if (d.geminiKey) elements.apiKey.value = d.geminiKey;
@@ -156,14 +163,14 @@ chrome.storage.local.get(null, (d) => {
   }
 });
 
-// Listen for storage changes
+// Listen for incoming post data from the background script
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === "local" && changes.postText) {
 
     // Clear manual JD when a new post loads
-  if (elements.jdInput) {
-    elements.jdInput.value = "";
-  }
+    if (elements.jdInput) {
+      elements.jdInput.value = "";
+    }
 
     chrome.storage.local.get(
       ["recruiterEmail", "geminiKey", "resumeText"],
@@ -181,7 +188,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
-// --- NAVIGATION ---
+// --- View Navigation Controllers ---
+// Handle switching between the main application views (Apply, Profile, Settings, Job Details)
 elements.openProfile.onclick = () => {
   elements.applyView.classList.add("hidden");
   elements.settingsView.classList.add("hidden");
@@ -227,7 +235,8 @@ elements.backBtnJD.onclick = () => {
   elements.applyView.classList.remove("hidden");
 };
 
-// --- CUSTOM FILE INPUT HANDLER ---
+// --- Resume File Input Handler ---
+// Bind the styled file display to the hidden file input element
 elements.resumeFileDisplay.onclick = () => {
   elements.resumeFile.click();
 };
@@ -239,7 +248,8 @@ elements.resumeFile.onchange = () => {
   }
 };
 
-// --- SETTINGS LOGIC ---
+// --- Settings Management Logic ---
+// Handle saving API keys, selecting AI models, and configuring Gmail settings
 elements.saveKey.onclick = () => {
   const key = elements.apiKey.value.trim();
   if (!key) return;
@@ -320,7 +330,8 @@ elements.saveProfile.onclick = () => {
   );
 };
 
-// --- RESUME UPLOAD ---
+// --- Resume Parsing & Upload ---
+// Read the uploaded PDF file, extract text content using PDF.js, and save to local storage
 elements.uploadResume.onclick = async () => {
   const file = elements.resumeFile.files[0];
   if (!file) return;
@@ -366,7 +377,8 @@ elements.uploadResume.onclick = async () => {
   }
 };
 
-// --- PDF GENERATOR HELPER ---
+// --- PDF Generation Utility ---
+// Convert generated cover letter text into a formatted PDF document
 function createStyledPDF(text) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -400,7 +412,8 @@ function createStyledPDF(text) {
   return doc;
 }
 
-// --- GENERATE CONTENT ---
+// --- AI Content Generation Workflow ---
+// Send the constructed prompt to the background script for Gemini API processing
 async function generate(type, btn, targetInput, isAutoGenerate = false) {
   const originalText = btn.innerText;
   if (!isAutoGenerate) {
@@ -529,6 +542,7 @@ async function generate(type, btn, targetInput, isAutoGenerate = false) {
   });
 }
 
+// Automatically trigger generation of both email and cover letter when new data arrives
 function autoGenerateContent() {
   elements.emailOutput.value = "Reading Resume & writing Email...";
   elements.coverOutput.value = "Reading Resume & writing Cover Letter...";
@@ -547,6 +561,7 @@ elements.genEmail.onclick = () =>
 elements.genCover.onclick = () =>
   generate("Cover Letter", elements.genCover, elements.coverOutput);
 
+// Handle downloading the generated cover letter as a PDF
 elements.downloadPdf.onclick = () => {
   const text = elements.coverOutput.value;
   if (!text) {
@@ -568,6 +583,7 @@ elements.downloadPdf.onclick = () => {
   doc.save(`Cover_Letter_${companyName}.pdf`);
 };
 
+// Handle copying the generated cover letter text to the clipboard
 elements.copyCover.onclick = () => {
   if (!elements.coverOutput.value) return;
   navigator.clipboard.writeText(elements.coverOutput.value);
@@ -575,6 +591,8 @@ elements.copyCover.onclick = () => {
   setTimeout(() => (elements.copyCover.innerText = "Copy Text"), 2000);
 };
 
+// --- Gmail Integration Workflow ---
+// Compose a new email in Gmail with the generated content and prompt the user to attach documents
 elements.directSend.onclick = async () => {
   console.log("[Panel] 'Open Gmail' Button Clicked");
 
@@ -620,9 +638,8 @@ elements.directSend.onclick = async () => {
 
       const accountIndex = d.selectedGmailAccount || "0";
 
-      const subject = `Application for ${d.lastGeneratedTitle || "Role"} - ${
-        d.userName || "Candidate"
-      }`;
+      const subject = `Application for ${d.lastGeneratedTitle || "Role"} - ${d.userName || "Candidate"
+        }`;
       const gmailUrl = `https://mail.google.com/mail/?view=cm&authuser=${accountIndex}&to=${encodeURIComponent(
         rEmail
       )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(
@@ -670,7 +687,8 @@ elements.directSend.onclick = async () => {
   );
 };
 
-// --- APPLY MANUAL JD ---
+// --- Manual Job Description Handler ---
+// Allow the user to paste a job description manually if the extension misses it
 
 // Clear JD Button
 elements.clearJD.onclick = () => {
@@ -688,24 +706,24 @@ elements.applyJD.onclick = () => {
 
   const emailMatch = jdText.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
 
-let recruiterEmail = "";
+  let recruiterEmail = "";
 
-if (emailMatch) {
-  recruiterEmail = emailMatch[0];
+  if (emailMatch) {
+    recruiterEmail = emailMatch[0];
 
-  elements.recruiterEmail.value = recruiterEmail;
-  elements.recruiterEmail.placeholder = "e.g. recruiter@company.com";
+    elements.recruiterEmail.value = recruiterEmail;
+    elements.recruiterEmail.placeholder = "e.g. recruiter@company.com";
 
-} else {
+  } else {
 
-  // clear previous email completely
-  recruiterEmail = "";
+    // clear previous email completely
+    recruiterEmail = "";
 
-  elements.recruiterEmail.value = "";
-  elements.recruiterEmail.placeholder =
-    "Recruiter email not found in JD – Enter manually";
+    elements.recruiterEmail.value = "";
+    elements.recruiterEmail.placeholder =
+      "Recruiter email not found in JD – Enter manually";
 
-}
+  }
 
   chrome.storage.local.set({
     postText: jdText,

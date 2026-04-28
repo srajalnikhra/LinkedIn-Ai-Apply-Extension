@@ -1,3 +1,7 @@
+// ==========================================
+// Prompt Templates for AI Content Generation
+// ==========================================
+
 export const EMAIL_PROMPT = `
 You are an experienced technical recruiter.
 Task: Write a recruiter-friendly, concise, and HUMAN-WRITTEN email body.
